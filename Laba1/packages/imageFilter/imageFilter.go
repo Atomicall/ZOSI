@@ -4,6 +4,6 @@ import (
 	"fmt"
 )
 
-func printStatus() {
+func PrintStatus() {
 	fmt.Print("Hello from imageFilter package")
 }
