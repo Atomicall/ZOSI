@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/Atomicall/ZOSI/packages/imageFilter"
 	"gocv.io/x/gocv"
 )
 
