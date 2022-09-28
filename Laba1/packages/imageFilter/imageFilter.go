@@ -30,7 +30,7 @@ func LowFreqFilter(image gocv.Mat) gocv.Mat {
 				newPixel = 0
 				for i := 0; i < len(filter); i++ {
 					for j := 0; j < len(filter[i]); j++ {
-						newPixel += (float32(borderedImg.GetIntAt3(row+i, col+i, ch)) * filter[i][j])
+						newPixel += (float32(borderedImg.GetIntAt(row+i, col+i)) * filter[i][j])
 					}
 				}
 				newImage.SetIntAt(row, col, int32(newPixel/16))
