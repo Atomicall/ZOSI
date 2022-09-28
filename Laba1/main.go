@@ -8,17 +8,14 @@ import (
 	helpfuncs "github.com/Atomicall/ZOSI/Laba1/packages/helpFuncs"
 	_ "github.com/Atomicall/ZOSI/Laba1/packages/imageFilter"
 	"github.com/Atomicall/ZOSI/Laba1/packages/imagePerElemProccessing"
-	"gocv.io/x/gocv"
 )
 
 func main() {
 	var (
 		foundImageMap = make(map[string]string)
-		image         = gocv.NewMat()
 		imgDir        = "images"
 		outDir        = "out"
 	)
-	defer image.Close()
 
 	fmt.Printf("Looking for images in <images> folder....\n")
 	filepath.Walk(imgDir, func(path string, fileInfo os.FileInfo, err error) error {
