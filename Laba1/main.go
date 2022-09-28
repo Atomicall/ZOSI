@@ -5,28 +5,38 @@ import (
 	"os"
 	"path/filepath"
 
-	helpfuncs "github.com/Atomicall/ZOSI/Laba1/packages/helpFuncs"
+	"github.com/Atomicall/ZOSI/Laba1/packages/helpFuncs"
+	"github.com/Atomicall/ZOSI/Laba1/packages/histogram"
+	"github.com/Atomicall/ZOSI/Laba1/packages/imageFilter"
 	_ "github.com/Atomicall/ZOSI/Laba1/packages/imageFilter"
 	"github.com/Atomicall/ZOSI/Laba1/packages/imagePerElemProccessing"
 )
 
 func main() {
 	var (
-		foundImageMap = make(map[string]string)
-		imgDir        = "images"
-		outDir        = "out"
+		foundImagePathsMap = make(map[string]string)
+		imgDir             = "images"
+		outDir             = "out"
 	)
 
 	fmt.Printf("Looking for images in <images> folder....\n")
 	filepath.Walk(imgDir, func(path string, fileInfo os.FileInfo, err error) error {
 		if !fileInfo.IsDir() {
-			foundImageMap[fileInfo.Name()] = path
+			foundImagePathsMap[fileInfo.Name()] = path
 			fmt.Printf("\tFound image : %s\n", fileInfo.Name())
 		}
 		return nil
 	})
-	helpfuncs.ShowImagesWithPaths(foundImageMap)
-	negImages := helpfuncs.ProccessImageWithFunc(foundImageMap, imagePerElemProccessing.ConvertToNegative, outDir)
-	helpfuncs.ShowImages(negImages)
+	histogram.MakeAndSaveHistograms(foundImagePathsMap, outDir)
+	helpFuncs.ShowImagesWithPaths(foundImagePathsMap)
+
+	negImages, negImagesPath := helpFuncs.ProccessImageWithFunc(foundImagePathsMap, imagePerElemProccessing.ConvertToNegative, outDir, "negative_")
+	histogram.MakeAndSaveHistograms(negImagesPath, outDir)
+	helpFuncs.ShowImages(negImages)
+
+	filteredImages, filteredImagesPaths := helpFuncs.ProccessImageWithFunc(foundImagePathsMap, imageFilter.LowFreqFilter, outDir, "filtered_")
+	histogram.MakeAndSaveHistograms(filteredImagesPaths, outDir)
+	helpFuncs.ShowImages(filteredImages)
+
 	fmt.Printf("Ending of the program...")
 }

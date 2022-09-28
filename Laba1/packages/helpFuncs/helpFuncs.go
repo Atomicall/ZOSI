@@ -1,4 +1,4 @@
-package helpfuncs
+package helpFuncs
 
 import (
 	"fmt"
@@ -31,10 +31,12 @@ func ShowImagesWithPaths(imageMap map[string]string) {
 	}
 }
 
-func ProccessImageWithFunc(imageMap map[string]string, fn func(image gocv.Mat) gocv.Mat, outDir string) map[string]gocv.Mat {
-	var newImages = make(map[string]gocv.Mat)
+func ProccessImageWithFunc(imageMap map[string]string,
+	fn func(image gocv.Mat) gocv.Mat, outDir string, prefix string) (map[string]gocv.Mat, map[string]string) {
 
-	prefix := "new_"
+	var newImages = make(map[string]gocv.Mat)
+	var newImagesPaths = make(map[string]string)
+
 	fmt.Printf("Starting image processing\n")
 	for name, path := range imageMap {
 		fmt.Printf("\tProcessing image : %s...\n", name)
@@ -50,12 +52,13 @@ func ProccessImageWithFunc(imageMap map[string]string, fn func(image gocv.Mat) g
 		defer img.Close()
 
 		fmt.Printf("\t\tSaving as %s...\n", newName)
-		err := gocv.IMWrite(filepath.Join(outDir, newName), newImages[newName])
+		newImagesPaths[newName] = filepath.Join(outDir, newName)
+		err := gocv.IMWrite(newImagesPaths[newName], newImages[newName])
 		if !err {
 			fmt.Println("[ERROR] - Error writing image")
 			continue
 		}
 		fmt.Printf("\t\tdone!\n")
 	}
-	return newImages
+	return newImages, newImagesPaths
 }
