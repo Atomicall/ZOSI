@@ -8,23 +8,24 @@ import (
 
 func ConvertToNegative(image gocv.Mat) gocv.Mat {
 	var (
-		intence   uint8 = 255
-		rows            = image.Rows()
-		cols            = image.Cols()
-		channels        = image.Channels()
-		dataImage       = image.ToBytes()
+		intence       uint8 = 0xff
+		rows                = image.Rows()
+		cols                = image.Cols()
+		negativeImage       = gocv.NewMatWithSize(rows, cols, image.Type())
+		size                = image.ElemSize() * rows * cols
 	)
-	for row := 0; row < rows; row++ {
-		for col := 0; col < cols; col++ {
-			for ch := 0; ch < channels; ch++ {
-				idx := row*cols + col + ch
-				dataImage[idx] = intence - dataImage[idx]
-			}
-		}
-	}
-	negativeImage, err := gocv.NewMatFromBytes(rows, cols, image.Type(), dataImage)
+
+	data, err := image.DataPtrUint8()
 	if err != nil {
-		fmt.Printf("%T", err.Error())
+		fmt.Printf("\t[ERORR] - imagePerElemProccessing.go(ConvertToNegative) - can't get image data\n")
 	}
+	result, err2 := negativeImage.DataPtrUint8()
+	if err2 != nil {
+		fmt.Printf("\t[ERORR] - imagePerElemProccessing.go(ConvertToNegative) - can't get image data\n")
+	}
+	for i := 0; i < size; i++ {
+		result[i] = intence - data[i]
+	}
+
 	return negativeImage
 }
