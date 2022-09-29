@@ -17,6 +17,13 @@ func main() {
 		foundImagePathsMap = make(map[string]string)
 		imgDir             = "images"
 		outDir             = "out"
+		filter             = [][]uint8{
+			{1, 1, 1, 1, 1},
+			{1, 1, 1, 1, 1},
+			{1, 1, 1, 1, 1},
+			{1, 1, 1, 1, 1},
+			{1, 1, 1, 1, 1},
+		}
 	)
 
 	fmt.Printf("Looking for images in <images> folder....\n")
@@ -34,7 +41,7 @@ func main() {
 	histogram.MakeAndSaveHistograms(negImagesPath, outDir)
 	helpFuncs.ShowImages(negImages)
 
-	filteredImages, filteredImagesPaths := helpFuncs.ProccessImageWithFunc(foundImagePathsMap, imageFilter.LowFreqFilter, outDir, "filtered_")
+	filteredImages, filteredImagesPaths := helpFuncs.ProccessImageWithFilter(foundImagePathsMap, imageFilter.LowFreqFilter, filter, outDir, "filtered_")
 	histogram.MakeAndSaveHistograms(filteredImagesPaths, outDir)
 	helpFuncs.ShowImages(filteredImages)
 

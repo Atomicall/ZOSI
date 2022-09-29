@@ -1,39 +1,51 @@
 package imageFilter
 
 import (
-	"fmt"
 	"image/color"
 
 	"gocv.io/x/gocv"
 )
 
-func LowFreqFilter(image gocv.Mat) gocv.Mat {
+func LowFreqFilter(image gocv.Mat, filter [][]uint8) gocv.Mat {
 	var (
 		rows     = image.Rows()
 		cols     = image.Cols()
 		channels = image.Channels()
-		//size        = rows * cols * image.ElemSize()
-		newPixel    float32 = 0
-		newImage            = gocv.NewMatWithSize(rows, cols, image.Type())
-		borderedImg         = gocv.NewMatWithSize(rows, cols, image.Type())
-		filter              = [][]float32{
-			{0.1, 0.2, 0.1},
-			{0.2, 0.4, 0.2},
-			{0.1, 0.2, 0.1},
-		}
+		//size        = image.Total()
+		newPixel    uint32 = 0
+		imType             = image.Type()
+		elemSize           = image.ElemSize()
+		newImage           = gocv.NewMatWithSize(rows, cols, imType)
+		borderedImg        = gocv.NewMatWithSize(rows, cols, imType)
+
+		startingPixel = len(filter[0]) / 2 * elemSize
 	)
-	fmt.Printf("size %v", image.Size())
-	gocv.CopyMakeBorder(image, &borderedImg, 1, 1, 1, 1, gocv.BorderDefault, color.RGBA{15, 6, 6, 1})
+	sum := func(filter [][]uint8) uint8 {
+		var res uint8 = 0
+		for i := 0; i < len(filter); i++ {
+			for j := 0; j < len(filter[i]); j++ {
+				res += filter[i][j]
+			}
+		}
+		return res
+	}
+	divider := sum(filter)
+	gocv.CopyMakeBorder(image, &borderedImg,
+		startingPixel, startingPixel, startingPixel, startingPixel, gocv.BorderDefault, color.RGBA{0, 0, 0, 0})
 	for row := 1; row < rows; row++ {
-		for col := 1; col < cols; col++ {
-			for ch := 0; col < channels; ch++ {
+		for col := startingPixel; col < cols; col++ {
+			for ch := 0; ch < channels; ch++ {
 				newPixel = 0
 				for i := 0; i < len(filter); i++ {
 					for j := 0; j < len(filter[i]); j++ {
-						newPixel += (float32(borderedImg.GetIntAt(row+i, col+i)) * filter[i][j])
+						newPixel += uint32(borderedImg.GetUCharAt((row+i-1), (col*elemSize+j*elemSize-startingPixel+ch)) * filter[i][j] / divider)
 					}
+					if newPixel > 255 {
+						newPixel = 255
+					}
+					newImage.SetUCharAt(row, col*elemSize+ch, uint8(newPixel))
 				}
-				newImage.SetIntAt(row, col, int32(newPixel/16))
+
 			}
 		}
 
