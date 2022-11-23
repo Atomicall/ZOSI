@@ -18,7 +18,7 @@ from obj_detection import parameters
 from file_search import img_lookup
 
 def main():
-    images = img_lookup.find_images("images")
+    images = img_lookup.find_images(lookup_folder="images")
     print(images)
     for img_path in images:
         print()
@@ -35,6 +35,11 @@ def main():
         plt.savefig(os.path.join(output_folder, "inverted.jpg"))
         plt.close()
 
+        plt.imshow(skimage.io.imread(img_path))
+        plt.axis("off");
+        plt.savefig(os.path.join(output_folder, "original.jpg"))
+        plt.close()
+        
         print('{} objects found'.format(A_count))
 
         object_perimeters = parameters.objs_perimeter_evaluation(A_labeled_image, A_count)
@@ -51,14 +56,14 @@ def main():
 
         A_objs_params_list = parameters.bind_params(A_labeled_image, A_count)
         print(A_objs_params_list)
-
+        print()
         # JUST WORKAROUND -- NOT NORMAL FLOW
         A_objs_params_list = A_objs_params_list[0:-1]
         print(A_objs_params_list)
 
         A_objs_cluster_id_param = k_means.k_means(A_objs_params_list, 4)
         print(A_objs_cluster_id_param)
-
+        
         print(A_objs_params_list)
 
         # A_objs_cluster_id_param = []
@@ -85,6 +90,7 @@ def main():
             if os.path.exists(os.path.join(output_folder,"clusters")) != True:
                 os.mkdir(os.path.join(output_folder, "clusters"))
             _, _ = plt.subplots()
+            plt.axis("off");
             plt.imshow(A_labeled_image == A_label_id, cmap="gray")
             plt.title('Cluster ID {}'.format(A_objs_cluster_id_param[A_label_id-1]))
             plt.savefig(os.path.join(output_folder,"clusters", "cluster"+str(A_label_id)+".jpg"))
