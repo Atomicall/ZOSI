@@ -20,20 +20,20 @@ from packages import setup
 
 # Option 7 = З,П,Ь
 def main():
-    parameters = argv_parser.parse(["images_dir", "output_dir", "generate_images", "letter_size", "font_dir"])
-    images_dir, out_dir, generate_images, letter_size, font_dir  = parameters
+    parameters = argv_parser.parse(["images_dir", "output_dir", "generate_letters", "letter_size", "font_dir"])
+    images_dir, out_dir, generate_letters, letter_size, font_dir  = parameters
     letter_size = int(letter_size)
     print(parameters)
     if (not path.isdir(images_dir)):
         os.makedirs(images_dir)
-    elif generate_images == None: 
+    elif generate_letters == None: 
         raise Exception("[ERROR] No samples provided!")
     if  not path.exists(out_dir):
         os.makedirs(out_dir)
 
-    if generate_images:
+    if generate_letters:
         fonts_list = files_lookup.find_files_by_regex(font_dir, "courier.*\.ttf")
-        letters_list = (generate_images).split(",")
+        letters_list = (generate_letters.upper()).split(",")
         letter_generator.generate_images_from_letters(letters_list, images_dir, fonts_list[0], letter_size, "jpg")
 
     samples_paths_list = files_lookup.find_files_by_regex(lookup_folder=images_dir, reg_exp=".*\.(jp[e]?g|png)")
@@ -42,7 +42,7 @@ def main():
     samples = [ skimage.io.imread(im) for im in samples_paths_list ]
 
     print("[INFO] Starting preprocessing....")
-    samples = [ setup.image2vector(s, h=128 ,w=128) for s in samples ]
+    samples = [ setup.image2vector(s, h=10 ,w=10) for s in samples ]
     
     noised_samples = [ setup.make_noised_vector(s, 10) for s in samples]
 
