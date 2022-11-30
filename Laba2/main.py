@@ -18,59 +18,44 @@ from obj_detection import parameters
 from file_search import img_lookup
 
 def main():
-    images = img_lookup.find_images(lookup_folder="images")
-    print(images)
+    lookup_folder="images"
+    images = img_lookup.find_images(lookup_folder)
+    print("Found in folder '{}' files : {}".format(lookup_folder,images))
+
     for img_path in images:
-        print()
         print("Working with image {}".format(img_path))
         filename= img_path.split("/")[-1]
         output_folder = os.path.join("output", filename.split(".")[0])
         if (os.path.exists(output_folder) != True) :
             os.mkdir(output_folder)
-        A_labeled_image, A_count = connected_comp.connected_components_from_scratch(filename=img_path, sigma=3.0, t=0.5, connectivity=2)
+        A_labeled_image, A_count = connected_comp.connected_components_from_scratch(output_folder, filename=img_path, sigma=3.0, t=0.5, connectivity=2)
 
-        fig, ax = plt.subplots()
+        _, _ = plt.subplots()
         plt.imshow(skimage.color.label2rgb(skimage.util.invert(A_labeled_image)))
-        plt.axis("off");
-        plt.savefig(os.path.join(output_folder, "inverted.jpg"))
+        plt.axis("off")
+        plt.savefig(os.path.join(output_folder, "labled.jpg"))
         plt.close()
 
         plt.imshow(skimage.io.imread(img_path))
-        plt.axis("off");
+        plt.axis("off")
         plt.savefig(os.path.join(output_folder, "original.jpg"))
         plt.close()
         
         print('{} objects found'.format(A_count))
 
-        object_perimeters = parameters.objs_perimeter_evaluation(A_labeled_image, A_count)
-
-        parameters.objs_perimeter_evaluation(A_labeled_image, A_count)
-
-        object_areas = parameters.objs_area_evaluation(A_labeled_image, A_count)
-
-        parameters.objs_area_evaluation(A_labeled_image, A_count)
-
-        parameters.objs_compactness_evaluation(object_perimeters,object_areas, A_count)
-
-        parameters.objs_mass_center_evaluation(A_labeled_image, A_count)
-
         A_objs_params_list = parameters.bind_params(A_labeled_image, A_count)
-        print(A_objs_params_list)
-        print()
-        # JUST WORKAROUND -- NOT NORMAL FLOW
-        A_objs_params_list = A_objs_params_list[0:-1]
-        print(A_objs_params_list)
-
         A_objs_cluster_id_param = k_means.k_means(A_objs_params_list, 4)
-        print(A_objs_cluster_id_param)
-        
-        print(A_objs_params_list)
-
-        # A_objs_cluster_id_param = []
-        # for param in A_objs_params_list: #objs_params_list
-        #     A_objs_cluster_id_param.append(param[-1])
-
-        print(A_objs_cluster_id_param)
+        index = 0
+        for obj in A_objs_params_list :
+            print(
+    """Object {a} :  
+        area : {b},
+        perimetr : {c},
+        compactness: {d},
+        mass_center: {e}, 
+        cluster_id : {f}""".format(a=index, b=obj[0], c=obj[1], d=obj[2], e=obj[3], f=A_objs_cluster_id_param[index])
+            )
+            index+=1
 
         A_label_ids = np.arange(0, A_count)
 
@@ -79,7 +64,7 @@ def main():
                 os.mkdir(os.path.join(output_folder, "labels"))
             _, _ = plt.subplots()
             plt.imshow(A_labeled_image == A_label_id, cmap="gray")
-            plt.axis("off");
+            plt.axis("off")
             plt.title('Label ID {}'.format(A_label_id))
             plt.savefig(os.path.join(output_folder,"labels" ,"label"+str(A_label_id)+".jpg"))
         plt.close()
@@ -90,11 +75,14 @@ def main():
             if os.path.exists(os.path.join(output_folder,"clusters")) != True:
                 os.mkdir(os.path.join(output_folder, "clusters"))
             _, _ = plt.subplots()
-            plt.axis("off");
+            plt.axis("off")
             plt.imshow(A_labeled_image == A_label_id, cmap="gray")
             plt.title('Cluster ID {}'.format(A_objs_cluster_id_param[A_label_id-1]))
             plt.savefig(os.path.join(output_folder,"clusters", "cluster"+str(A_label_id)+".jpg"))
         plt.close()
         print("saved at {}".format(output_folder))
+
+
+
 if __name__ == "__main__":
     main()

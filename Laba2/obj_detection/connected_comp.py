@@ -7,10 +7,11 @@ import skimage.filters
 import skimage.measure
 import random
 from sklearn.cluster import KMeans
+import os.path
 
 from . import labeling
 
-def connected_components_from_scratch(filename, sigma=1.0, t=0.5, connectivity=2):
+def connected_components_from_scratch(output_folder, filename, sigma=1.0, t=0.5, connectivity=2):
     
     # load the image
     image = skimage.io.imread(filename)
@@ -21,8 +22,10 @@ def connected_components_from_scratch(filename, sigma=1.0, t=0.5, connectivity=2
     
     fig, ax = plt.subplots()
     plt.imshow(gray_image)
-    plt.axis("off");
-
+    plt.axis("off")
+    plt.savefig(os.path.join(output_folder, "gray.jpg"))
+    plt.close()
+    
     # denoise the image with a Gaussian filter
     blurred_image = skimage.filters.gaussian(gray_image, sigma=sigma)
     #blurred_image = skimage.util.img_as_ubyte(blurred_image)
@@ -31,7 +34,9 @@ def connected_components_from_scratch(filename, sigma=1.0, t=0.5, connectivity=2
 
     fig, ax = plt.subplots()
     plt.imshow(blurred_image)
-    plt.axis("off");
+    plt.axis("off")
+    plt.savefig(os.path.join(output_folder, "blurred.jpg"))
+    plt.close()
     
     # mask the image according to threshold
     #binary_mask = blurred_image < t
@@ -42,7 +47,9 @@ def connected_components_from_scratch(filename, sigma=1.0, t=0.5, connectivity=2
     
     fig, ax = plt.subplots()
     plt.imshow(binary_mask)
-    plt.axis("off");
+    plt.axis("off")
+    plt.savefig(os.path.join(output_folder, "binary_mask.jpg"))
+    plt.close()
     
     # perform connected component analysis
     inverted_binary_mask = skimage.util.invert(binary_mask)
